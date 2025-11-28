@@ -1,0 +1,260 @@
+<!-- src/app/admin/pages/details-room/details-room.component.html -->
+
+<div class="container mx-auto px-4 py-6">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center min-h-screen">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="mt-4 text-base-content">Cargando información de la habitación...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <div class="alert alert-error shadow-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{ error() }}</span>
+      <button class="btn btn-sm btn-outline" (click)="volverALista()">
+        Volver a la lista
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @else if (habitacion()) {
+    <!-- Header con botones de acción -->
+    <div class="flex justify-between items-center mb-6 animate-[fadeIn_0.5s_ease-out]">
+      <button class="btn btn-ghost gap-2 hover:bg-base-200 transition-all" (click)="volverALista()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+        Volver
+      </button>
+      
+      <div class="flex gap-2">
+        <button class="btn btn-primary gap-2 hover:scale-105 transition-transform" (click)="editarHabitacion()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+          </svg>
+          Editar
+        </button>
+        <button class="btn btn-error gap-2 hover:scale-105 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          Eliminar
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Columna izquierda: Galería de fotos (2 columnas en lg) -->
+      <div class="lg:col-span-2 animate-[fadeIn_0.6s_ease-out]">
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+          <figure class="relative">
+            @if (habitacion()!.fotos && habitacion()!.fotos.length > 0) {
+              <!-- Imagen principal -->
+              <img 
+                [src]="getImageUrl(habitacion()!.fotos[selectedImageIndex()].url)" 
+                [alt]="'Habitación ' + habitacion()!.numeroHabitacion"
+                class="w-full h-96 object-cover transition-opacity duration-300"
+              />
+              
+              <!-- Botones de navegación -->
+              @if (habitacion()!.fotos.length > 1) {
+                <button 
+                  class="btn btn-circle btn-sm absolute left-4 top-1/2 -translate-y-1/2 bg-base-100/80 hover:bg-base-100 backdrop-blur-sm hover:scale-110 transition-all"
+                  (click)="prevImage()"
+                >
+                  ❮
+                </button>
+                <button 
+                  class="btn btn-circle btn-sm absolute right-4 top-1/2 -translate-y-1/2 bg-base-100/80 hover:bg-base-100 backdrop-blur-sm hover:scale-110 transition-all"
+                  (click)="nextImage()"
+                >
+                  ❯
+                </button>
+              }
+
+              <!-- Indicador de posición -->
+              <div class="badge badge-neutral absolute bottom-4 right-4 backdrop-blur-sm bg-base-100/80">
+                {{ selectedImageIndex() + 1 }} / {{ habitacion()!.fotos.length }}
+              </div>
+            } @else {
+              <!-- Sin fotos -->
+              <div class="w-full h-96 bg-base-200 flex flex-col items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-base-content/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="mt-4 text-base-content/50">No hay fotos disponibles</p>
+              </div>
+            }
+          </figure>
+
+          <!-- Miniaturas -->
+          @if (habitacion()!.fotos && habitacion()!.fotos.length > 1) {
+            <div class="card-body">
+              <div class="flex gap-2 overflow-x-auto pb-2 scroll-smooth [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-base-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-base-content/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-base-content/40">
+                @for (foto of habitacion()!.fotos; track foto.id; let i = $index) {
+                  <img 
+                    [src]="getImageUrl(foto.url)" 
+                    [alt]="'Miniatura ' + i"
+                    class="w-24 h-20 object-cover rounded-lg cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-lg"
+                    [class.ring-4]="i === selectedImageIndex()"
+                    [class.ring-primary]="i === selectedImageIndex()"
+                    [class.scale-105]="i === selectedImageIndex()"
+                    (click)="selectImage(i)"
+                  />
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Columna derecha: Información (1 columna en lg) -->
+      <div class="space-y-4 animate-[fadeIn_0.7s_ease-out]">
+        <!-- Card de información básica -->
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+          <div class="card-body">
+            <!-- Título y estado -->
+            <div class="flex items-start justify-between mb-4">
+              <h2 class="card-title text-2xl flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Habitación {{ habitacion()!.numeroHabitacion }}
+              </h2>
+              <div 
+                class="badge badge-lg font-semibold animate-pulse"
+                [ngClass]="{
+                  'badge-success': habitacion()!.estado === 'disponible',
+                  'badge-error': habitacion()!.estado === 'ocupada',
+                  'badge-warning': habitacion()!.estado === 'mantenimiento',
+                  'badge-info': habitacion()!.estado === 'limpieza'
+                }"
+              >
+                {{ habitacion()!.estado | uppercase }}
+              </div>
+            </div>
+
+            <!-- Tipo de habitación -->
+            <div class="mb-4 p-3 bg-base-200 rounded-lg">
+              <label class="text-sm text-base-content/60 font-medium">Tipo de Habitación</label>
+              <p class="font-semibold text-lg mt-1">{{ habitacion()!.tipoHabitacion.nombre }}</p>
+              @if (habitacion()!.tipoHabitacion.descripcion) {
+                <p class="text-sm text-base-content/70 mt-1">{{ habitacion()!.tipoHabitacion.descripcion }}</p>
+              }
+            </div>
+
+            <!-- Precio -->
+            <div class="mb-4 p-4 bg-gradient-to-br from-success/10 to-success/5 rounded-lg border-2 border-success/20">
+              <label class="text-sm text-base-content/60 font-medium">Precio Base</label>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span class="text-4xl font-bold text-success">
+                  ${{ habitacion()!.precioBase | number:'1.2-2' }}
+                </span>
+                <span class="text-base-content/60 text-sm">/ noche</span>
+              </div>
+            </div>
+
+            <div class="divider my-2"></div>
+
+            <!-- Detalles en grid -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="stat bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-4 border border-primary/20 hover:shadow-md transition-shadow">
+                <div class="stat-figure text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div class="stat-title text-xs font-semibold">Piso</div>
+                <div class="stat-value text-3xl text-primary">{{ habitacion()!.piso }}</div>
+              </div>
+
+              <div class="stat bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg p-4 border border-secondary/20 hover:shadow-md transition-shadow">
+                <div class="stat-figure text-secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div class="stat-title text-xs font-semibold">Capacidad</div>
+                <div class="stat-value text-3xl text-secondary">{{ habitacion()!.capacidad }}</div>
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            @if (habitacion()!.descripcion) {
+              <div class="mb-4 p-3 bg-base-200 rounded-lg">
+                <label class="text-sm text-base-content/60 font-medium flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                  Descripción
+                </label>
+                <p class="text-sm mt-2 leading-relaxed">{{ habitacion()!.descripcion }}</p>
+              </div>
+            }
+
+            <div class="divider my-2"></div>
+
+            <!-- Fechas -->
+            <div class="text-xs text-base-content/60 space-y-2 bg-base-200/50 p-3 rounded-lg">
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                <span class="font-medium">Creado:</span> {{ habitacion()!.creadoEn | date:'dd/MM/yyyy HH:mm' }}
+              </div>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-info" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                <span class="font-medium">Actualizado:</span> {{ habitacion()!.actualizadoEn | date:'dd/MM/yyyy HH:mm' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card de servicios -->
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+          <div class="card-body">
+            <h3 class="card-title text-lg flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              Servicios Incluidos
+            </h3>
+            
+            @if (habitacion()!.servicios && habitacion()!.servicios.length > 0) {
+              <div class="space-y-2 mt-2">
+                @for (servicio of habitacion()!.servicios; track servicio.id) {
+                  <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-base-200 to-base-100 rounded-lg hover:shadow-md transition-all hover:scale-[1.02]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-success flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="flex-1">
+                      <p class="font-semibold text-base">{{ servicio.nombre }}</p>
+                      @if (servicio.descripcion) {
+                        <p class="text-sm text-base-content/70 mt-1">{{ servicio.descripcion }}</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="alert alert-info mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>No hay servicios asignados a esta habitación</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,15 @@
+/* src/styles.css */
+
+/* 1. Importa el núcleo de Tailwind */
+@import "tailwindcss";
+
+/* 2. ¡IMPORTANTE! Dile dónde buscar tus archivos HTML y TS */
+@source "../src/**/*.{html,ts}";
+
+/* 3. Importa DaisyUI como plugin */
+@plugin "daisyui";
+
+/* (Opcional) Configuración de tema */
+@theme {
+  --font-display: "Satoshi", "sans-serif";
+}
