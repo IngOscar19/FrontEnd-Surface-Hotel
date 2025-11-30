@@ -1,0 +1,97 @@
+<div class="p-4 md:p-8 h-screen flex flex-col bg-base-200 fade-in">
+
+  <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+    
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 flex items-center justify-center bg-primary text-primary-content rounded-2xl shadow-lg shadow-primary/20">
+        <span class="text-xl font-bold">{{ currentDate().getDate() }}</span>
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold text-base-content capitalize tracking-tight">
+          {{ currentMonthName() }}
+        </h1>
+        <p class="text-base text-base-content/60 font-medium flex items-center gap-1">
+          {{ currentYear() }}
+          <span class="text-xs px-2 py-0.5 rounded-full bg-base-300 text-base-content/70">
+            {{ reservas().length }} reservas
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="join bg-base-100 shadow-sm border border-base-300 rounded-lg p-1">
+      <button class="join-item btn btn-sm btn-ghost hover:bg-base-200 rounded-md" (click)="changeMonth(-1)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+      </button>
+      <div class="join-item px-4 flex items-center font-semibold text-sm cursor-default min-w-[100px] justify-center">
+        Mes
+      </div>
+      <button class="join-item btn btn-sm btn-ghost hover:bg-base-200 rounded-md" (click)="changeMonth(1)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl border border-base-300 flex-grow h-[calc(100vh-theme(spacing.48))] flex flex-col overflow-hidden rounded-2xl">
+    
+    <div class="grid grid-cols-7 border-b border-base-200">
+      @for (day of weekDays; track day) {
+        <div class="py-4 text-center">
+          <span class="text-xs font-bold text-base-content/40 uppercase tracking-widest">
+            {{ day }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <div class="grid grid-cols-7 auto-rows-fr bg-base-100 divide-x divide-y divide-base-200 flex-grow overflow-y-auto">
+      
+      @for (date of daysInMonth(); track $index) {
+        
+        <div class="relative p-2 flex flex-col gap-1 transition-colors hover:bg-base-200/30 min-h-[7rem] group">
+          
+          @if (date) {
+            <div class="flex justify-center mb-1">
+              <span class="h-7 w-7 flex items-center justify-center rounded-full text-sm font-medium transition-all"
+                    [ngClass]="isToday(date) 
+                      ? 'bg-primary text-primary-content font-bold shadow-lg shadow-primary/30 scale-110' 
+                      : 'text-base-content/70 group-hover:text-base-content'">
+                {{ date.getDate() }}
+              </span>
+            </div>
+
+            <div class="flex flex-col gap-1.5 overflow-y-auto custom-scrollbar px-0.5 pb-2">
+              @for (res of getReservationsForDate(date); track res.id) {
+                
+                <div class="group/chip relative pl-2.5 pr-2 py-1.5 rounded-md cursor-pointer transition-all duration-200 hover:-translate-y-0.5 border-l-[3px]"
+     [ngClass]="{
+       'bg-emerald-500/20 border-emerald-500 hover:bg-emerald-500/30': res.estado === 'confirmada',
+       'bg-amber-500/20 border-amber-500 hover:bg-amber-500/30': res.estado === 'pendiente',
+       'bg-rose-500/20 border-rose-500 hover:bg-rose-500/30': res.estado === 'cancelada'
+     }">
+  
+  <div class="text-xs font-bold truncate flex items-center gap-1"
+       [ngClass]="{
+         'text-emerald-100': res.estado === 'confirmada',
+         'text-amber-100': res.estado === 'pendiente',
+         'text-rose-100': res.estado === 'cancelada'
+       }">
+    
+    {{ res.nombreHuesped || 'Sin Nombre' }}
+  </div>
+</div>
+              }
+            </div>
+
+          } @else {
+            <div class="w-full h-full bg-base-200/20"></div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

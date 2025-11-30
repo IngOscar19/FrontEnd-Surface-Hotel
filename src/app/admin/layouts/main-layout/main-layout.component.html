@@ -1,8 +1,9 @@
-
-<div class="min-h-screen bg-gray-100">
-  <app-sidebar></app-sidebar>
+<div class="min-h-screen bg-base-200 text-base-content font-sans">
   
-  <main class="ml-64 p-8">
+  <app-sidebar class="fixed top-0 left-0 h-full z-50"></app-sidebar>
+  
+  <main class="ml-64 min-h-screen transition-all duration-300">
     <router-outlet></router-outlet>
   </main>
+  
 </div>

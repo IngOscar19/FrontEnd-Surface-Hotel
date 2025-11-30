@@ -1,0 +1,326 @@
+<div class="p-4 md:p-8 min-h-screen bg-base-200 fade-in">
+  
+  <div class="max-w-4xl mx-auto mb-8 text-center">
+    <h1 class="text-3xl font-bold text-base-content mb-6">Nueva Reservación</h1>
+    
+    <ul class="steps steps-vertical lg:steps-horizontal w-full">
+      <li class="step" [class.step-primary]="currentStep() >= 1">Datos del Huésped</li>
+      <li class="step" [class.step-primary]="currentStep() >= 2">Habitación y Fechas</li>
+      <li class="step" [class.step-primary]="currentStep() >= 3">Confirmación</li>
+    </ul>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl max-w-5xl mx-auto border border-base-300">
+    <div class="card-body">
+
+      @if (errorMessage()) {
+        <div class="alert alert-error mb-6 shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 
+                 0 9 9 0 0118 0z" />
+          </svg>
+
+          <span class="font-medium">{{ errorMessage() }}</span>
+          <button class="btn btn-xs btn-ghost" (click)="errorMessage.set('')">✕</button>
+        </div>
+      }
+
+      <!-- ========================================================= -->
+      <!-- STEP 1: Huesped -->
+      <!-- ========================================================= -->
+      @if (currentStep() === 1) {
+        <form [formGroup]="guestForm" (ngSubmit)="submitGuest()" class="space-y-4 fade-in">
+          
+          <div class="flex items-center gap-2 border-b border-base-200 pb-2 mb-4">
+            <span class="badge badge-primary">1</span>
+            <h3 class="font-bold text-lg">Registrar Huésped</h3>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- Nombre -->
+            <div class="form-control">
+              <label class="label"><span class="label-text">Nombre *</span></label>
+              <input formControlName="Nombre" type="text" class="input input-bordered w-full"
+                     placeholder="Ingrese el nombre"
+                     [ngClass]="{'input-error': guestForm.get('Nombre')?.invalid && guestForm.get('Nombre')?.touched}" />
+              @if (guestForm.get('Nombre')?.invalid && guestForm.get('Nombre')?.touched) {
+                <label class="label">
+                  <span class="label-text-alt text-error">El nombre es requerido</span>
+                </label>
+              }
+            </div>
+
+            <!-- Apellido -->
+            <div class="form-control">
+              <label class="label"><span class="label-text">Apellido *</span></label>
+              <input formControlName="Apellido" type="text" class="input input-bordered w-full"
+                     placeholder="Ingrese el apellido"
+                     [ngClass]="{'input-error': guestForm.get('Apellido')?.invalid && guestForm.get('Apellido')?.touched}" />
+              @if (guestForm.get('Apellido')?.invalid && guestForm.get('Apellido')?.touched) {
+                <label class="label">
+                  <span class="label-text-alt text-error">El apellido es requerido</span>
+                </label>
+              }
+            </div>
+
+            <!-- Número Documento -->
+            <div class="form-control">
+              <label class="label"><span class="label-text">No. Documento *</span></label>
+              <input formControlName="NumeroDocumento" type="text" class="input input-bordered w-full"
+                     placeholder="DNI / Pasaporte"
+                     [ngClass]="{'input-error': guestForm.get('NumeroDocumento')?.invalid && guestForm.get('NumeroDocumento')?.touched}" />
+              @if (guestForm.get('NumeroDocumento')?.invalid && guestForm.get('NumeroDocumento')?.touched) {
+                <label class="label">
+                  <span class="label-text-alt text-error">El documento es requerido</span>
+                </label>
+              }
+            </div>
+
+            <!-- Tipo Documento -->
+            <div class="form-control">
+              <label class="label"><span class="label-text">Tipo Documento</span></label>
+              <select formControlName="TipoDocumento" class="select select-bordered w-full">
+                <option value="DNI">DNI</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="Licencia">Licencia</option>
+              </select>
+            </div>
+
+            <!-- Fecha nacimiento -->
+            <div class="form-control">
+              <label class="label"><span class="label-text">Fecha Nacimiento</span></label>
+              <input formControlName="FechaNacimiento" type="date" class="input input-bordered w-full" />
+            </div>
+
+            <!-- Email -->
+            <div class="form-control">
+              <label class="label"><span class="label-text">Email</span></label>
+              <input formControlName="Email" type="email" class="input input-bordered w-full"
+                     placeholder="correo@ejemplo.com"
+                     [ngClass]="{'input-error': guestForm.get('Email')?.invalid && guestForm.get('Email')?.touched}" />
+              @if (guestForm.get('Email')?.invalid && guestForm.get('Email')?.touched) {
+                <label class="label">
+                  <span class="label-text-alt text-error">Email inválido</span>
+                </label>
+              }
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-control">
+              <label class="label"><span class="label-text">Teléfono</span></label>
+              <input formControlName="Telefono" type="tel" class="input input-bordered w-full"
+                     placeholder="+52 123 456 7890" />
+            </div>
+          </div>
+
+          <div class="card-actions justify-end mt-8">
+            <button type="submit" class="btn btn-primary px-8" [disabled]="loading()">
+              @if (loading()) {
+                <span class="loading loading-spinner loading-sm"></span>
+              }
+              Guardar y Continuar
+            </button>
+          </div>
+
+        </form>
+      }
+
+      <!-- ========================================================= -->
+      <!-- STEP 2: Reserva -->
+      <!-- ========================================================= -->
+      @if (currentStep() === 2) {
+        <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()" class="space-y-6 fade-in">
+          
+          <div class="flex items-center gap-2 border-b border-base-200 pb-2 mb-4">
+            <span class="badge badge-primary">2</span>
+            <h3 class="font-bold text-lg">Detalles de la Reserva</h3>
+          </div>
+          
+          <!-- Fechas -->
+          <div class="bg-base-200 p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div class="form-control">
+              <label class="label"><span class="label-text font-bold">Fecha Entrada *</span></label>
+              <input formControlName="FechaEntrada" type="date" class="input input-bordered w-full input-primary"
+                     [ngClass]="{'input-error': bookingForm.get('FechaEntrada')?.invalid && bookingForm.get('FechaEntrada')?.touched}" />
+            </div>
+
+            <div class="form-control">
+              <label class="label"><span class="label-text font-bold">Fecha Salida *</span></label>
+              <input formControlName="FechaSalida" type="date" class="input input-bordered w-full input-primary"
+                     [ngClass]="{'input-error': bookingForm.get('FechaSalida')?.invalid && bookingForm.get('FechaSalida')?.touched}" />
+            </div>
+
+            <div class="form-control">
+              <label class="label"><span class="label-text font-bold">Huéspedes</span></label>
+              <input formControlName="NumeroHuespedes" type="number" min="1" class="input input-bordered w-full" />
+            </div>
+
+          </div>
+
+          <!-- Selección de Habitación -->
+          <div class="form-control">
+            <label class="label"><span class="label-text font-bold text-lg">Seleccionar Habitación *</span></label>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+
+              @for (hab of habitaciones(); track hab.id) {
+
+                <label class="cursor-pointer label p-0 relative group">
+
+                  <!-- CORRECCIÓN: Eliminar el atributo name para evitar conflicto -->
+                  <input type="radio" 
+                         formControlName="HabitacionId" 
+                         [value]="hab.id" 
+                         class="peer hidden" />
+
+                  <div class="card bg-base-100 border-2 border-base-300 w-full 
+                              hover:border-primary peer-checked:border-primary 
+                              peer-checked:bg-primary/5 peer-checked:shadow-lg 
+                              transition-all duration-200">
+
+                    <div class="card-body p-4">
+
+                      <div class="flex justify-between items-start">
+                        <div class="badge badge-lg font-bold">{{ hab.numeroHabitacion }}</div>
+                        <div class="badge badge-outline badge-sm">{{ hab.tipoHabitacion?.nombre }}</div>
+                      </div>
+
+                      <p class="text-sm text-base-content/70 mt-2 line-clamp-2">
+                        {{ hab.descripcion || 'Sin descripción' }}
+                      </p>
+
+                      <div class="mt-4 flex justify-between items-end border-t border-base-200 pt-2">
+
+                        <div class="flex items-center gap-1 text-xs text-base-content/60">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                               viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                              d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 
+                              11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 
+                              0v3h8v-3zM6 8a2 2 0 
+                              11-4 0 2 2 0 014 0zM16 
+                              18v-3a5.972 5.972 0 
+                              00-.75-2.906A3.005 3.005 
+                              0 0119 15v3h-3zM4.75 
+                              12.094A5.973 5.973 0 
+                              004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                          </svg>
+                          {{ hab.capacidad }}
+                        </div>
+
+                        <div class="text-lg font-bold text-primary">
+                          ${{ hab.precioBase }}
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="absolute top-2 right-2 hidden peer-checked:block text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                         fill="currentColor" class="w-6 h-6">
+                      <path fill-rule="evenodd"
+                        d="M2.25 12c0-5.385 
+                        4.365-9.75 9.75-9.75s9.75 
+                        4.365 9.75 9.75-4.365 
+                        9.75-9.75 9.75S2.25 
+                        17.385 2.25 12zm13.36-1.814a.75.75 
+                        0 10-1.22-.872l-3.236 
+                        4.53L9.53 12.22a.75.75 
+                        0 00-1.06 1.06l2.25 
+                        2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+
+                </label>
+
+              } @empty {
+                <div class="col-span-full alert alert-warning">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                       viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 
+                         0 2.502-1.667 1.732-3L13.732 
+                         4c-.77-1.333-2.694-1.333-3.464 
+                         0L3.34 16c-.77 1.333.192 3 
+                         1.732 3z" />
+                  </svg>
+                  <span>No hay habitaciones cargadas en el sistema.</span>
+                </div>
+              }
+
+            </div>
+
+            @if (bookingForm.get('HabitacionId')?.invalid && bookingForm.get('HabitacionId')?.touched) {
+              <div class="text-error text-sm mt-2 font-medium">
+                ⚠ Debes seleccionar una habitación.
+              </div>
+            }
+
+          </div>
+
+          <!-- Observaciones -->
+          <div class="form-control">
+            <label class="label"><span class="label-text">Observaciones</span></label>
+            <textarea formControlName="Observaciones" class="textarea textarea-bordered h-24"
+                      placeholder="Solicitudes especiales..."></textarea>
+          </div>
+
+          <div class="card-actions justify-between mt-8 pt-4 border-t border-base-200">
+
+            <button type="button" (click)="currentStep.set(1)" class="btn btn-ghost hover:bg-base-200">
+              ← Atrás
+            </button>
+
+            <button type="submit" class="btn btn-secondary text-white px-8 shadow-lg shadow-secondary/20"
+                    [disabled]="loading()">
+              @if (loading()) {
+                <span class="loading loading-spinner"></span>
+              }
+              Confirmar Reserva
+            </button>
+
+          </div>
+
+        </form>
+      }
+
+      <!-- ========================================================= -->
+      <!-- STEP 3: Confirmación -->
+      <!-- ========================================================= -->
+      @if (currentStep() === 3) {
+        <div class="text-center py-10 fade-in flex flex-col items-center">
+          
+          <div class="text-success mb-6 bg-success/10 p-6 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+
+          <h2 class="text-3xl font-bold mb-2 text-base-content">¡Reserva Exitosa!</h2>
+          <p class="text-base-content/70 max-w-md mx-auto mb-8">
+            La reserva se ha registrado correctamente y la habitación quedó bloqueada.
+          </p>
+
+          <div class="flex gap-4">
+            <button (click)="startNew()" class="btn btn-primary">
+              Nueva Reserva
+            </button>
+            <a routerLink="/admin/reservas" class="btn btn-outline">
+              Ver Todas las Reservas
+            </a>
+          </div>
+
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

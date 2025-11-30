@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Temporada, TipoHabitacion, Habitacion } from '../../core/interface/settings.interface';
 
 @Injectable({
@@ -10,51 +11,66 @@ export class SettingsService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:5053/api'; 
 
-  
-  // ... (Tus métodos anteriores getTemporadas, getHabitaciones, etc. déjalos igual) ...
+  // Obtener todas las temporadas
   getTemporadas(): Observable<Temporada[]> {
     return this.http.get<Temporada[]>(`${this.apiUrl}/TemporadaPrecio`);
   }
 
+  // Obtener tipos de habitación
   getTiposHabitacion(): Observable<TipoHabitacion[]> {
-    return this.http.get<TipoHabitacion[]>(`${this.apiUrl}/TiposHabitacion`); // Asegura que este endpoint exista o usa un mock
+    return this.http.get<TipoHabitacion[]>(`${this.apiUrl}/TiposHabitacion`);
   }
 
+  // Obtener habitaciones
   getHabitaciones(): Observable<Habitacion[]> {
     return this.http.get<Habitacion[]>(`${this.apiUrl}/Habitacion`);
   }
 
+  // Obtener datos del dashboard de configuración (sin habitaciones)
   getDashboardData() {
     return forkJoin({
       temporadas: this.getTemporadas(),
-      tipos: this.getTiposHabitacion(),
-      habitaciones: this.getHabitaciones()
+      tipos: this.getTiposHabitacion()
     });
   }
 
-  // --- NUEVOS MÉTODOS PARA LOS BOTONES ---
-
-  // 1. Crear Temporada
+  // Crear temporada
   createTemporada(temporada: any): Observable<Temporada> {
-    return this.http.post<Temporada>(`${this.apiUrl}/TemporadaPrecio`, temporada);
+    const dto = {
+      nombre: temporada.nombre,
+      descripcion: temporada.descripcion || '',
+      fechaInicio: temporada.fechaInicio,
+      fechaFin: temporada.fechaFin,
+      factorMultiplicador: parseFloat(temporada.factorMultiplicador),
+      activo: temporada.activo ?? true
+    };
+    
+    return this.http.post<Temporada>(`${this.apiUrl}/TemporadaPrecio`, dto);
   }
 
-  // 2. Actualizar Precios Masivamente
-  // Recibe: { tipoId: 1, nuevoPrecio: 1500 } y la lista actual de habitaciones para saber cuáles actualizar
+  // Actualizar una habitación
+  updateHabitacion(id: number, habitacion: Habitacion): Observable<Habitacion> {
+    return this.http.put<Habitacion>(`${this.apiUrl}/Habitacion/${id}`, habitacion);
+  }
+
+  // Actualizar precios masivamente por tipo
   updatePrecioPorTipo(tipoId: number, nuevoPrecio: number, todasLasHabitaciones: Habitacion[]): Observable<any> {
-    // Filtramos las habitaciones que son de este tipo
+    // Filtrar habitaciones del tipo especificado
     const habitacionesAActualizar = todasLasHabitaciones.filter(h => h.tipoHabitacionId === tipoId);
     
-    if (habitacionesAActualizar.length === 0) return new Observable(o => o.complete());
+    if (habitacionesAActualizar.length === 0) {
+      return of([]); // Retornar observable vacío si no hay habitaciones
+    }
 
-    // Creamos una petición PUT para cada habitación (Esto es temporal, lo ideal sería un endpoint masivo en Backend)
+    // Crear peticiones PUT para cada habitación
     const peticiones = habitacionesAActualizar.map(hab => {
-      // Clona el objeto y actualiza el precio
-      const habitacionActualizada = { ...hab, precioBase: nuevoPrecio };
-      return this.http.put(`${this.apiUrl}/Habitacion/${hab.id}`, habitacionActualizada);
+      const habitacionActualizada: Habitacion = { 
+        ...hab, 
+        precioBase: nuevoPrecio 
+      };
+      return this.updateHabitacion(hab.id, habitacionActualizada);
     });
 
-    // Ejecuta todas las peticiones en paralelo
     return forkJoin(peticiones);
   }
 }

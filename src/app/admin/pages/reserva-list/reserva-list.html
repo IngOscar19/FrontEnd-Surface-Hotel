@@ -1,0 +1,105 @@
+<div class="p-6 md:p-10 min-h-screen bg-base-200 fade-in">
+  
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-base-content">Reservas</h1>
+      <p class="text-base-content/60 text-sm mt-1">Gestiona el historial y nuevas reservaciones</p>
+    </div>
+    
+    <a routerLink="/admin/reservas/crear" class="btn btn-primary shadow-lg shadow-primary/30 text-white gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Nueva Reserva
+    </a>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl border border-base-300">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead class="bg-base-200/50 text-base-content/70 uppercase text-xs tracking-wider font-semibold">
+          <tr>
+            <th class="py-4 pl-6">ID</th>
+            <th>Huésped</th>
+            <th>Habitación</th>
+            <th>Fechas</th>
+            <th>Total</th>
+            <th class="pr-6 text-center">Estado</th>
+          </tr>
+        </thead>
+        
+        <tbody class="text-sm">
+          @for (reserva of reservas(); track reserva.id) {
+          <tr class="hover:bg-base-200/40 transition-colors duration-200">
+            
+            <td class="pl-6 font-mono text-xs opacity-60">
+              #{{ reserva.id }}
+            </td>
+
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="avatar placeholder">
+              <div class="bg-neutral text-neutral-content rounded-full w-8 h-8 flex items-center justify-center">
+                <span class="text-xs font-bold leading-none">
+                  {{ reserva.nombreHuesped?.charAt(0) || '?' }}
+                </span>
+              </div>
+              </div>
+                <div>
+                  <div class="font-bold text-base-content">{{ reserva.nombreHuesped || 'Sin Nombre' }}</div>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <div class="badge badge-ghost badge-sm font-medium">
+                {{ reserva.nombreHabitacion || 'N/A' }}
+              </div>
+            </td>
+
+            <td>
+              <div class="flex flex-col gap-1 text-xs text-base-content/70">
+                <div class="flex items-center gap-1">
+                  <span class="font-semibold text-success">IN:</span> 
+                  {{ reserva.fechaEntrada | date:'dd MMM yyyy' }}
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="font-semibold text-error">OUT:</span> 
+                  {{ reserva.fechaSalida | date:'dd MMM yyyy' }}
+                </div>
+              </div>
+            </td>
+
+            <td class="font-mono font-bold text-base-content">
+              {{ reserva.precioTotal | currency }}
+            </td>
+
+            <td class="pr-6 text-center">
+              <span class="badge badge-sm font-semibold border-0 py-3 px-4 text-white"
+                [ngClass]="{
+                  'bg-success shadow-success/20 shadow-md': reserva.estado.toLowerCase() === 'confirmada',
+                  'bg-warning text-warning-content': reserva.estado.toLowerCase() === 'pendiente',
+                  'bg-error shadow-error/20 shadow-md': reserva.estado.toLowerCase() === 'cancelada'
+                }">
+                {{ reserva.estado }}
+              </span>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="6" class="text-center py-16">
+              <div class="flex flex-col items-center justify-center text-base-content/40">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="text-lg font-semibold">No hay reservas registradas</p>
+                <p class="text-sm">Comienza creando una nueva reserva.</p>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
