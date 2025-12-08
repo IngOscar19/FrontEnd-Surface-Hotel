@@ -1,13 +1,11 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common'; 
-
-// Servicios
+import { RouterLink } from '@angular/router'; 
 import { HuespedService } from '../../services/huesped.service';
 import { ReservacionService } from '../../services/reservacion.service';
 import { RoomService } from '../../services/room.service';
-
-// Interfaces
+import { AlertService } from '../../../core/services/alert.service'; 
 import { HabitacionDetalle } from '../../../core/interface/room.interface';
 import {
   CreateHuespedDTO,
@@ -18,65 +16,63 @@ import {
 
 @Component({
   selector: 'app-reserva',
-  templateUrl: './reserva.html',
   standalone: true,
   imports: [
     ReactiveFormsModule, 
-    CommonModule
-  ]
+    CommonModule,
+    RouterLink
+  ],
+  templateUrl: './reserva.html'
 })
 export class ReservaComponent implements OnInit {
 
-  // Inyección de dependencias
   private fb = inject(FormBuilder);
   private huespedService = inject(HuespedService);
   private reservationService = inject(ReservacionService);
   private roomService = inject(RoomService);
+  private alertService = inject(AlertService); 
 
-  // Signals para estado
   currentStep = signal(1);
   loading = signal(false);
-  errorMessage = signal('');
+  
   
   habitaciones = signal<HabitacionDetalle[]>([]); 
   huespedIdCreado = signal<number | null>(null);
 
-  // Formularios
+
   guestForm = this.fb.group({
     Nombre: ['', Validators.required],
     Apellido: ['', Validators.required],
     NumeroDocumento: ['', Validators.required],
     TipoDocumento: ['DNI'], 
     FechaNacimiento: [''], 
-    Telefono: [''], // CORRECCIÓN: Quitado Validators.required si no es obligatorio
-    Email: ['', [Validators.email]] // CORRECCIÓN: Email opcional pero validado
+    Telefono: [''], 
+    Email: ['', [Validators.email]]
   });
 
   bookingForm = this.fb.group({
-    HabitacionId: [null as number | null, Validators.required], // CORRECCIÓN: Tipo correcto
+    HabitacionId: [null as number | null, Validators.required],
     FechaEntrada: ['', Validators.required],
     FechaSalida: ['', Validators.required],
     NumeroHuespedes: [1, [Validators.required, Validators.min(1)]],
     Observaciones: ['']
   });
 
-  // Ciclo de vida: Al iniciar el componente
   ngOnInit() {
     this.loadRooms();
-    console.log('Componente inicializado');
   }
 
   // Método para cargar habitaciones
   loadRooms() {
-    console.log('Cargando habitaciones...');
+    ('Cargando habitaciones...');
     this.roomService.getRooms().subscribe({
       next: (data) => {
-        console.log('Habitaciones recibidas del servicio:', data);
         this.habitaciones.set(data);
       },
       error: (err) => {
         console.error('Error cargando habitaciones:', err);
-        this.errorMessage.set('No se pudieron cargar las habitaciones disponibles.');
+      
+        this.alertService.error('No se pudieron cargar las habitaciones disponibles. Verifique su conexión.');
       }
     });
   }
@@ -85,11 +81,10 @@ export class ReservaComponent implements OnInit {
   submitGuest() {
     if (this.guestForm.invalid) {
       this.guestForm.markAllAsTouched();
-      this.errorMessage.set("Por favor complete los datos obligatorios del huésped.");
+      this.alertService.warning('Por favor complete todos los campos obligatorios del huésped.');
       return;
     }
 
-    // CORRECCIÓN: Construcción correcta del payload
     const formValue = this.guestForm.value;
     const payload: CreateHuespedDTO = {
       Nombre: formValue.Nombre || '',
@@ -101,72 +96,62 @@ export class ReservaComponent implements OnInit {
       Email: formValue.Email || null
     };
 
-    console.log('Enviando huésped con payload:', payload);
     this.loading.set(true);
 
     this.huespedService.createHuesped(payload).subscribe({
       next: (huesped: Huesped) => {
         this.loading.set(false);
-        this.errorMessage.set('');
         
-        console.log('Huésped creado exitosamente:', huesped);
-        console.log('ID del huésped:', huesped.id);
-        
-        // Guardamos el ID (en camelCase)
+       
         this.huespedIdCreado.set(huesped.id);
         
-        // Verificación adicional
-        console.log('✅ ID guardado en signal:', this.huespedIdCreado());
+        
+        this.alertService.success('Huésped registrado correctamente. Continúe con la reserva.');
         
         this.currentStep.set(2);
       },
       error: (err: any) => {
         this.loading.set(false);
-        console.error('Error completo:', err);
+        console.error('Error al crear huésped:', err);
         
-        // CORRECCIÓN: Mejor manejo de errores
+        let msg = 'Error al registrar el huésped.';
         if (err.error?.message) {
-          this.errorMessage.set(err.error.message);
+          msg = err.error.message;
         } else if (err.error?.errors) {
           const errors = Object.values(err.error.errors).flat();
-          this.errorMessage.set(`Errores: ${errors.join(', ')}`);
-        } else {
-          this.errorMessage.set("Error al registrar el huésped. Intente nuevamente.");
+          msg = `Errores: ${errors.join(', ')}`;
         }
+
+        
+        this.alertService.error(msg);
       }
     });
   }
 
-  // Envío de la Reserva
+  
   submitBooking() {
-    console.log('=== INICIO submitBooking ===');
-    console.log('Estado del formulario:', this.bookingForm.value);
-    console.log('ID del huésped en signal:', this.huespedIdCreado());
-    
     if (this.bookingForm.invalid) {
       this.bookingForm.markAllAsTouched();
-      this.errorMessage.set("Por favor seleccione fechas y habitación.");
+      
+      this.alertService.warning('Por favor seleccione las fechas y una habitación válida.');
       return;
     }
 
     const guestId = this.huespedIdCreado();
     
     if (!guestId) {
-      console.error('ERROR: No hay ID de huésped');
-      this.errorMessage.set("Error: No se ha identificado al huésped. Vuelva al paso 1.");
-      this.currentStep.set(1); // Forzar volver al paso 1
+      this.alertService.error('Error crítico: No se ha identificado al huésped. Vuelva al paso 1.');
+      this.currentStep.set(1);
       return;
     }
 
     const formValues = this.bookingForm.value;
 
-    // CORRECCIÓN: Validar que HabitacionId no sea null
     if (!formValues.HabitacionId) {
-      this.errorMessage.set("Por favor seleccione una habitación.");
+      this.alertService.warning('Debe seleccionar una habitación para continuar.');
       return;
     }
 
-    // CORRECCIÓN: Construcción correcta del payload
     const payload: ReservaCreateDto = {
       HabitacionId: Number(formValues.HabitacionId),
       HuespedId: guestId,
@@ -176,42 +161,39 @@ export class ReservaComponent implements OnInit {
       Observaciones: formValues.Observaciones || null
     };
 
-    console.log('Payload de reserva a enviar:', payload);
-
     this.loading.set(true);
 
     this.reservationService.createReservation(payload).subscribe({
-              next: (reserva: ReservaResponseDto) => {
+      next: (reserva: ReservaResponseDto) => {
         this.loading.set(false);
-        this.errorMessage.set('');
-        console.log('Reserva creada exitosamente:', reserva);
-        this.currentStep.set(3); // Éxito
+      
         
-        // OPCIONAL: Resetear formularios después de mostrar éxito
+       
+        this.alertService.success('¡Reserva confirmada exitosamente!');
+        
+        this.currentStep.set(3);
+        
         setTimeout(() => {
           this.resetForms();
         }, 100);
       },
       error: (err: any) => {
         this.loading.set(false);
-        console.error('Error completo al crear reserva:', err);
+        console.error('Error reserva:', err);
         
-        // CORRECCIÓN: Mejor manejo de errores
+        let msg = 'Error al crear la reserva.';
         if (err.error?.message) {
-          this.errorMessage.set(err.error.message);
-        } else if (err.error?.errors) {
-          const errors = Object.values(err.error.errors).flat();
-          this.errorMessage.set(`Errores: ${errors.join(', ')}`);
+          msg = err.error.message;
         } else if (err.status === 0) {
-          this.errorMessage.set("No se pudo conectar con el servidor. Verifique su conexión.");
-        } else {
-          this.errorMessage.set("Error al crear la reserva. Verifique disponibilidad.");
+          msg = 'No se pudo conectar con el servidor.';
         }
+
+        
+        this.alertService.error(msg);
       }
     });
   }
 
-  // NUEVO: Método para resetear formularios
   private resetForms() {
     this.guestForm.reset({
       TipoDocumento: 'DNI'
@@ -222,11 +204,10 @@ export class ReservaComponent implements OnInit {
     this.huespedIdCreado.set(null);
   }
 
-  // NUEVO: Método para volver a empezar
   startNew() {
     this.currentStep.set(1);
     this.resetForms();
-    this.errorMessage.set('');
-    this.loadRooms(); // Recargar habitaciones
+    this.loadRooms();
+    this.alertService.info('Listo para una nueva reserva');
   }
 }

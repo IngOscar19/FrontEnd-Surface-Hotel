@@ -14,7 +14,7 @@ export class ReservaList implements OnInit {
 
   private reservacionService = inject(ReservacionService);
 
-  // Signal para manejar el estado
+   
   reservas = signal<ReservaResponseDto[]>([]);
   isLoading = signal<boolean>(true);
 
@@ -33,7 +33,7 @@ export class ReservaList implements OnInit {
       error: (err) => {
         console.error('Error al cargar reservas', err);
         this.isLoading.set(false);
-        // Opcional: Aquí podrías cargar datos mock si falla el backend
+        
       }
     });
   }

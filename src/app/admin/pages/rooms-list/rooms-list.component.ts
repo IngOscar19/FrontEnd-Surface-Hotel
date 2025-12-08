@@ -46,7 +46,7 @@ export class RoomsListComponent implements OnInit {
 
   get filteredRooms(): HabitacionDetalle[] {
     return this.rooms.filter(room => {
-      // CORRECCIÓN: Validamos que las propiedades existan antes de usar toLowerCase()
+       
       const searchLower = this.searchTerm.toLowerCase();
       
       const matchesSearch = !this.searchTerm || 
@@ -85,7 +85,6 @@ export class RoomsListComponent implements OnInit {
   }
 
   getStatusLabel(estado: string): string {
-    // Protección contra undefined
     if (!estado) return 'Desconocido';
     
     const labels: { [key: string]: string } = {

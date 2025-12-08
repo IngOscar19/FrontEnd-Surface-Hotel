@@ -30,7 +30,6 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.handleAuthSuccess(response);
-          // ✅ AGREGADO: Navegar al dashboard después del registro
           this.router.navigate(['/admin/dashboard']);
         })
       );
@@ -41,7 +40,6 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.handleAuthSuccess(response);
-          // ✅ AGREGADO: Navegar al dashboard después del login
           this.router.navigate(['/admin/dashboard']);
         })
       );
@@ -70,6 +68,54 @@ export class AuthService {
     return null;
   }
 
+
+  getUser(): User | null {
+    return this.currentUserSignal();
+  }
+
+
+  getUserRole(): string | null {
+    const user = this.getUser();
+    return user?.rol || null;
+  }
+
+  
+  getUserId(): string | null {
+    const user = this.getUser();
+    return user?.id ?? null;
+  }
+
+ 
+  getUserName(): string | null {
+    const user = this.getUser();
+    return user?.nombre ?? null;
+  }
+
+  
+  getUserApellido(): string | null {
+    const user = this.getUser();
+    return user?.apellido ?? null;
+  }
+
+  
+  getUserFullName(): string {
+    const user = this.getUser();
+    if (!user) return 'Usuario';
+    return `${user.nombre} ${user.apellido}`.trim();
+  }
+
+  
+  getUserEmail(): string | null {
+    const user = this.getUser();
+    return user?.email || null;
+  }
+
+  
+  hasRole(role: string): boolean {
+    const userRole = this.getUserRole();
+    return userRole?.toLowerCase() === role.toLowerCase();
+  }
+
   private handleAuthSuccess(response: AuthResponse): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', response.token);
@@ -86,6 +132,7 @@ export class AuthService {
         if (userStr && userStr !== 'undefined' && userStr !== 'null') {
           const user = JSON.parse(userStr);
           this.currentUserSignal.set(user);
+          console.log('Usuario cargado desde storage:', user);
         }
       } catch (error) {
         console.error('Error loading user from storage:', error);

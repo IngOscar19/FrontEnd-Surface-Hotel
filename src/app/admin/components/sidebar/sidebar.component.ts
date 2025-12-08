@@ -16,7 +16,6 @@ interface MenuItem {
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent {
-  // ✅ CORREGIDO: Rutas con prefijo /admin
   menuItems: MenuItem[] = [
     { label: 'Dashboard', iconName: 'dashboard', route: '/admin/dashboard' },
     { label: 'Habitaciones', iconName: 'bed', route: '/admin/habitaciones' },

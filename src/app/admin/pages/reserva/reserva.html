@@ -13,22 +13,6 @@
   <div class="card bg-base-100 shadow-xl max-w-5xl mx-auto border border-base-300">
     <div class="card-body">
 
-      @if (errorMessage()) {
-        <div class="alert alert-error mb-6 shadow-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 
-                 0 9 9 0 0118 0z" />
-          </svg>
-
-          <span class="font-medium">{{ errorMessage() }}</span>
-          <button class="btn btn-xs btn-ghost" (click)="errorMessage.set('')">✕</button>
-        </div>
-      }
-
-      <!-- ========================================================= -->
-      <!-- STEP 1: Huesped -->
-      <!-- ========================================================= -->
       @if (currentStep() === 1) {
         <form [formGroup]="guestForm" (ngSubmit)="submitGuest()" class="space-y-4 fade-in">
           
@@ -39,7 +23,6 @@
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <!-- Nombre -->
             <div class="form-control">
               <label class="label"><span class="label-text">Nombre *</span></label>
               <input formControlName="Nombre" type="text" class="input input-bordered w-full"
@@ -52,7 +35,6 @@
               }
             </div>
 
-            <!-- Apellido -->
             <div class="form-control">
               <label class="label"><span class="label-text">Apellido *</span></label>
               <input formControlName="Apellido" type="text" class="input input-bordered w-full"
@@ -65,7 +47,6 @@
               }
             </div>
 
-            <!-- Número Documento -->
             <div class="form-control">
               <label class="label"><span class="label-text">No. Documento *</span></label>
               <input formControlName="NumeroDocumento" type="text" class="input input-bordered w-full"
@@ -78,7 +59,6 @@
               }
             </div>
 
-            <!-- Tipo Documento -->
             <div class="form-control">
               <label class="label"><span class="label-text">Tipo Documento</span></label>
               <select formControlName="TipoDocumento" class="select select-bordered w-full">
@@ -88,13 +68,11 @@
               </select>
             </div>
 
-            <!-- Fecha nacimiento -->
             <div class="form-control">
               <label class="label"><span class="label-text">Fecha Nacimiento</span></label>
               <input formControlName="FechaNacimiento" type="date" class="input input-bordered w-full" />
             </div>
 
-            <!-- Email -->
             <div class="form-control">
               <label class="label"><span class="label-text">Email</span></label>
               <input formControlName="Email" type="email" class="input input-bordered w-full"
@@ -107,7 +85,6 @@
               }
             </div>
 
-            <!-- Teléfono -->
             <div class="form-control">
               <label class="label"><span class="label-text">Teléfono</span></label>
               <input formControlName="Telefono" type="tel" class="input input-bordered w-full"
@@ -127,9 +104,6 @@
         </form>
       }
 
-      <!-- ========================================================= -->
-      <!-- STEP 2: Reserva -->
-      <!-- ========================================================= -->
       @if (currentStep() === 2) {
         <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()" class="space-y-6 fade-in">
           
@@ -138,7 +112,6 @@
             <h3 class="font-bold text-lg">Detalles de la Reserva</h3>
           </div>
           
-          <!-- Fechas -->
           <div class="bg-base-200 p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4">
             
             <div class="form-control">
@@ -160,7 +133,6 @@
 
           </div>
 
-          <!-- Selección de Habitación -->
           <div class="form-control">
             <label class="label"><span class="label-text font-bold text-lg">Seleccionar Habitación *</span></label>
             
@@ -170,7 +142,6 @@
 
                 <label class="cursor-pointer label p-0 relative group">
 
-                  <!-- CORRECCIÓN: Eliminar el atributo name para evitar conflicto -->
                   <input type="radio" 
                          formControlName="HabitacionId" 
                          [value]="hab.id" 
@@ -264,7 +235,6 @@
 
           </div>
 
-          <!-- Observaciones -->
           <div class="form-control">
             <label class="label"><span class="label-text">Observaciones</span></label>
             <textarea formControlName="Observaciones" class="textarea textarea-bordered h-24"
@@ -290,9 +260,6 @@
         </form>
       }
 
-      <!-- ========================================================= -->
-      <!-- STEP 3: Confirmación -->
-      <!-- ========================================================= -->
       @if (currentStep() === 3) {
         <div class="text-center py-10 fade-in flex flex-col items-center">
           

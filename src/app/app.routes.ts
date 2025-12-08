@@ -1,4 +1,3 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard'; 
 import { publicGuard } from './core/guards/public.guard';
@@ -11,7 +10,7 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    // ✅ CORRECCIÓN: Descomenta esto para evitar que usuarios logueados vean el login
+    
     canActivate: [publicGuard], 
     children: [
       {

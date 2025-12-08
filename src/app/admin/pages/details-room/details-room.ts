@@ -2,7 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RoomService } from '../../services/room.service';
+import { ReservacionService } from '../../services/reservacion.service';  
 import { HabitacionDetalle } from '../../../core/interface/room.interface';
+import { ReservaResponseDto } from '../../../core/interface/reserva.interface'; 
 
 @Component({
   selector: 'app-details-room',
@@ -12,17 +14,20 @@ import { HabitacionDetalle } from '../../../core/interface/room.interface';
 })
 export class DetailsRoomComponent implements OnInit {
   private roomService = inject(RoomService);
+  private reservacionService = inject(ReservacionService); 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  // Signals para manejo de estado
+  
   habitacion = signal<HabitacionDetalle | null>(null);
+  reservaActiva = signal<ReservaResponseDto | null>(null); 
+  
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
   selectedImageIndex = signal<number>(0);
 
   ngOnInit(): void {
-    // Obtener el ID de la habitación desde la URL
+    
     const id = this.route.snapshot.paramMap.get('id');
     
     if (id) {
@@ -40,8 +45,8 @@ export class DetailsRoomComponent implements OnInit {
     this.roomService.getRoomById(id).subscribe({
       next: (data) => {
         this.habitacion.set(data);
-        this.loading.set(false);
-        console.log('Habitación cargada:', data);
+       
+        this.cargarReservaAsociada(id);
       },
       error: (err) => {
         console.error('Error al cargar habitación:', err);
@@ -51,12 +56,77 @@ export class DetailsRoomComponent implements OnInit {
     });
   }
 
-  // Cambiar imagen seleccionada en la galería
+ 
+  cargarReservaAsociada(habitacionId: number): void {
+    this.reservacionService.getReservations().subscribe({
+      next: (reservas) => {
+        
+        const reserva = reservas.find(r => 
+          r.habitacionId === habitacionId && 
+          (r.estado === 'pendiente' || r.estado === 'confirmada')
+        );
+        
+        if (reserva) {
+          this.reservaActiva.set(reserva);
+        } else {
+          this.reservaActiva.set(null);
+        }
+        this.loading.set(false); 
+      },
+      error: (err) => {
+        
+        this.loading.set(false); 
+      }
+    });
+  }
+
+
+  confirmarReserva(): void {
+    const reserva = this.reservaActiva();
+    if (!reserva) return;
+
+    if (confirm('¿Confirmar entrada del huésped? La habitación pasará a estado OCUPADA.')) {
+      this.loading.set(true);
+      this.reservacionService.confirmReservation(reserva.id).subscribe({
+        next: () => {
+          ('Reserva confirmada');
+          
+          if(this.habitacion()?.id) this.cargarHabitacion(this.habitacion()!.id);
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Error al confirmar reserva');
+          this.loading.set(false);
+        }
+      });
+    }
+  }
+
+  
+  cancelarReserva(): void {
+    const reserva = this.reservaActiva();
+    if (!reserva) return;
+
+    if (confirm('¿Seguro que deseas cancelar esta reserva? Si la habitación estaba ocupada, pasará a LIMPIEZA.')) {
+      this.loading.set(true);
+      this.reservacionService.cancelReservation(reserva.id).subscribe({
+        next: () => {
+         
+          if(this.habitacion()?.id) this.cargarHabitacion(this.habitacion()!.id);
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Error al cancelar reserva');
+          this.loading.set(false);
+        }
+      });
+    }
+  }
+
   selectImage(index: number): void {
     this.selectedImageIndex.set(index);
   }
 
-  // Navegar a la siguiente imagen
   nextImage(): void {
     const fotos = this.habitacion()?.fotos || [];
     if (fotos.length > 0) {
@@ -65,7 +135,6 @@ export class DetailsRoomComponent implements OnInit {
     }
   }
 
-  // Navegar a la imagen anterior
   prevImage(): void {
     const fotos = this.habitacion()?.fotos || [];
     if (fotos.length > 0) {
@@ -76,17 +145,11 @@ export class DetailsRoomComponent implements OnInit {
     }
   }
 
-  // Obtener la URL completa de la imagen
   getImageUrl(url: string): string {
-    // Si la URL ya es completa, retornarla
-    if (url.startsWith('http')) {
-      return url;
-    }
-    // Si es relativa, agregar el dominio del backend
+    if (url.startsWith('http')) return url;
     return `http://localhost:5053${url}`;
   }
 
-  // Obtener badge de estado
   getEstadoBadgeClass(estado: string): string {
     const estados: { [key: string]: string } = {
       'disponible': 'badge-success',
@@ -97,7 +160,6 @@ export class DetailsRoomComponent implements OnInit {
     return estados[estado.toLowerCase()] || 'badge-secondary';
   }
 
-  // Navegar a editar
   editarHabitacion(): void {
     const id = this.habitacion()?.id;
     if (id) {
@@ -105,7 +167,6 @@ export class DetailsRoomComponent implements OnInit {
     }
   }
 
-  // Volver a la lista
   volverALista(): void {
     this.router.navigate(['/admin/habitaciones']);
   }

@@ -31,13 +31,14 @@
             [(ngModel)]="searchTerm">
         </div>
 
-        <select class="select select-bordered w-full md:w-auto" [(ngModel)]="filterType">
-          <option value="">Todos los tipos</option>
-          <option value="simple">Simple</option>
-          <option value="doble">Doble</option>
-          <option value="suite">Suite</option>
-          <option value="deluxe">Deluxe</option>
-        </select>
+          <select class="select select-bordered w-full md:w-auto" [(ngModel)]="filterType">
+            <option value="">Todos los tipos</option>
+            <option value="simple">Simple</option>
+            <option value="doble">Doble</option>
+            <option value="triple">Triple</option>
+            <option value="suite">Suite</option>
+            <option value="suite presidencial">Suite Presidencial</option>
+          </select>
 
         <select class="select select-bordered w-full md:w-auto" [(ngModel)]="filterStatus">
           <option value="">Todos los estados</option>

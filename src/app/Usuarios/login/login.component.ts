@@ -1,4 +1,3 @@
-// src/app/features/auth/components/login/login.component.ts
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -14,7 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class LoginComponent {
   loginForm: FormGroup;
   
-  // Señales para el estado de la UI
+  
   isLoading = signal(false);
   errorMessage = signal('');
   hidePassword = signal(true); 

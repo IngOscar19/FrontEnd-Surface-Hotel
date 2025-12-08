@@ -32,15 +32,8 @@ export interface Habitacion {
   activo?: boolean;
 }
 
-// Interfaz auxiliar para mostrar en la tabla de Configuración
-export interface PrecioPorTipoView {
-  idTipo?: number;
-  nombreTipo: string;
-  precioBase: number;
-  cantidadHabitaciones: number;
-}
 
-// DTOs para crear/actualizar
+
 export interface TemporadaCreateDto {
   nombre: string;
   descripcion?: string;

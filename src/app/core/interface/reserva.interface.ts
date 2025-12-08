@@ -1,4 +1,3 @@
-// -------- HUESPED -----------
 export interface CreateHuespedDTO {
   Nombre: string;
   Apellido: string;
@@ -11,9 +10,9 @@ export interface CreateHuespedDTO {
   FechaNacimiento?: string | null;
 }
 
-// Tu backend devuelve propiedades en camelCase (minúscula)
+
 export interface Huesped {
-  id: number;          // camelCase
+  id: number;          
   nombre: string;
   apellido: string;
   email?: string | null;
@@ -27,7 +26,7 @@ export interface Huesped {
   actualizadoEn?: string;
 }
 
-// -------- RESERVAS ----------
+
 export interface ReservaCreateDto {
   HabitacionId: number;
   HuespedId: number;
@@ -38,7 +37,7 @@ export interface ReservaCreateDto {
 }
 
 export interface ReservaResponseDto {
-  id: number;                  // camelCase
+  id: number;                  
   habitacionId: number;
   huespedId: number;
   fechaEntrada: string;

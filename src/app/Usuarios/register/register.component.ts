@@ -26,11 +26,11 @@ export class RegisterComponent {
       apellido: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      rol: ['user', Validators.required]
+      rol: ['admin', Validators.required]
     });
   }
 
-  // <--- Nuevo método
+  
   togglePasswordVisibility() {
     this.hidePassword.update(value => !value);
   }
@@ -46,15 +46,21 @@ export class RegisterComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          const msg = error.error?.message || error.message || 'Error al registrar usuario';
-          this.errorMessage.set(msg);
+          
+          
+          if (error.error?.errores && Array.isArray(error.error.errores)) {
+            this.errorMessage.set(error.error.errores.join(', '));
+          } else {
+            const msg = error.error?.mensaje || error.message || 'Error al registrar usuario';
+            this.errorMessage.set(msg);
+          }
         },
         complete: () => {
           this.isLoading.set(false);
         }
       });
     } else {
-      // <--- Nuevo: Muestra los errores rojos si el usuario da click sin llenar
+      
       this.registerForm.markAllAsTouched();
     }
   }

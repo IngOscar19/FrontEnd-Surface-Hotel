@@ -16,21 +16,21 @@ export class HuespedService {
     return this.http.post<Huesped>(`${this.apiUrl}/Huesped`, data).pipe(
       tap({
         next: (response) => {
-          console.log('✅ HuespedService - Respuesta exitosa:', response);
-          console.log('✅ HuespedService - ID recibido:', response.id);
+          console.log('HuespedService - Respuesta exitosa:', response);
+          console.log('HuespedService - ID recibido:', response.id);
         },
         error: (error) => {
-          console.error('❌ HuespedService - Error COMPLETO:', error);
-          console.error('❌ HuespedService - Status:', error.status);
-          console.error('❌ HuespedService - URL:', error.url);
-          console.error('❌ HuespedService - StatusText:', error.statusText);
+          console.error('HuespedService - Error COMPLETO:', error);
+          console.error('HuespedService - Status:', error.status);
+          console.error('HuespedService - URL:', error.url);
+          console.error('HuespedService - StatusText:', error.statusText);
           
-          // Intentar extraer el mensaje de error del backend
+         
           if (error.error) {
             if (typeof error.error === 'string') {
-              console.error('❌ HuespedService - Error del servidor (texto):', error.error.substring(0, 500));
+              console.error('HuespedService - Error del servidor (texto):', error.error.substring(0, 500));
             } else {
-              console.error('❌ HuespedService - Error del servidor (objeto):', error.error);
+              console.error('HuespedService - Error del servidor (objeto):', error.error);
             }
           }
         }

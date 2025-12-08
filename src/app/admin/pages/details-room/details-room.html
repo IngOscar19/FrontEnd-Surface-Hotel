@@ -1,7 +1,4 @@
-<!-- src/app/admin/pages/details-room/details-room.component.html -->
-
 <div class="container mx-auto px-4 py-6">
-  <!-- Loading State -->
   @if (loading()) {
     <div class="flex flex-col items-center justify-center min-h-screen">
       <span class="loading loading-spinner loading-lg text-primary"></span>
@@ -9,7 +6,6 @@
     </div>
   }
 
-  <!-- Error State -->
   @else if (error()) {
     <div class="alert alert-error shadow-lg">
       <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -22,9 +18,7 @@
     </div>
   }
 
-  <!-- Content -->
   @else if (habitacion()) {
-    <!-- Header con botones de acción -->
     <div class="flex justify-between items-center mb-6 animate-[fadeIn_0.5s_ease-out]">
       <button class="btn btn-ghost gap-2 hover:bg-base-200 transition-all" (click)="volverALista()">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -50,19 +44,16 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Columna izquierda: Galería de fotos (2 columnas en lg) -->
       <div class="lg:col-span-2 animate-[fadeIn_0.6s_ease-out]">
         <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
           <figure class="relative">
             @if (habitacion()!.fotos && habitacion()!.fotos.length > 0) {
-              <!-- Imagen principal -->
               <img 
                 [src]="getImageUrl(habitacion()!.fotos[selectedImageIndex()].url)" 
                 [alt]="'Habitación ' + habitacion()!.numeroHabitacion"
                 class="w-full h-96 object-cover transition-opacity duration-300"
               />
               
-              <!-- Botones de navegación -->
               @if (habitacion()!.fotos.length > 1) {
                 <button 
                   class="btn btn-circle btn-sm absolute left-4 top-1/2 -translate-y-1/2 bg-base-100/80 hover:bg-base-100 backdrop-blur-sm hover:scale-110 transition-all"
@@ -78,12 +69,10 @@
                 </button>
               }
 
-              <!-- Indicador de posición -->
               <div class="badge badge-neutral absolute bottom-4 right-4 backdrop-blur-sm bg-base-100/80">
                 {{ selectedImageIndex() + 1 }} / {{ habitacion()!.fotos.length }}
               </div>
             } @else {
-              <!-- Sin fotos -->
               <div class="w-full h-96 bg-base-200 flex flex-col items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-base-content/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -93,7 +82,6 @@
             }
           </figure>
 
-          <!-- Miniaturas -->
           @if (habitacion()!.fotos && habitacion()!.fotos.length > 1) {
             <div class="card-body">
               <div class="flex gap-2 overflow-x-auto pb-2 scroll-smooth [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-base-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-base-content/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-base-content/40">
@@ -114,12 +102,10 @@
         </div>
       </div>
 
-      <!-- Columna derecha: Información (1 columna en lg) -->
       <div class="space-y-4 animate-[fadeIn_0.7s_ease-out]">
-        <!-- Card de información básica -->
+        
         <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
           <div class="card-body">
-            <!-- Título y estado -->
             <div class="flex items-start justify-between mb-4">
               <h2 class="card-title text-2xl flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +126,6 @@
               </div>
             </div>
 
-            <!-- Tipo de habitación -->
             <div class="mb-4 p-3 bg-base-200 rounded-lg">
               <label class="text-sm text-base-content/60 font-medium">Tipo de Habitación</label>
               <p class="font-semibold text-lg mt-1">{{ habitacion()!.tipoHabitacion.nombre }}</p>
@@ -149,7 +134,6 @@
               }
             </div>
 
-            <!-- Precio -->
             <div class="mb-4 p-4 bg-gradient-to-br from-success/10 to-success/5 rounded-lg border-2 border-success/20">
               <label class="text-sm text-base-content/60 font-medium">Precio Base</label>
               <div class="flex items-baseline gap-2 mt-1">
@@ -162,7 +146,6 @@
 
             <div class="divider my-2"></div>
 
-            <!-- Detalles en grid -->
             <div class="grid grid-cols-2 gap-4 mb-4">
               <div class="stat bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-4 border border-primary/20 hover:shadow-md transition-shadow">
                 <div class="stat-figure text-primary">
@@ -185,7 +168,6 @@
               </div>
             </div>
 
-            <!-- Descripción -->
             @if (habitacion()!.descripcion) {
               <div class="mb-4 p-3 bg-base-200 rounded-lg">
                 <label class="text-sm text-base-content/60 font-medium flex items-center gap-2">
@@ -200,7 +182,6 @@
 
             <div class="divider my-2"></div>
 
-            <!-- Fechas -->
             <div class="text-xs text-base-content/60 space-y-2 bg-base-200/50 p-3 rounded-lg">
               <div class="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success" viewBox="0 0 20 20" fill="currentColor">
@@ -218,7 +199,63 @@
           </div>
         </div>
 
-        <!-- Card de servicios -->
+        @if (reservaActiva()) {
+          <div class="card bg-base-100 shadow-xl border border-primary/20 animate-[pulse_2s_infinite_bg]">
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <h3 class="card-title text-lg flex gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Reserva Activa
+                </h3>
+                <div class="badge" [ngClass]="{
+                  'badge-warning': reservaActiva()?.estado === 'pendiente',
+                  'badge-success': reservaActiva()?.estado === 'confirmada'
+                }">
+                  {{ reservaActiva()?.estado | uppercase }}
+                </div>
+              </div>
+
+              <div class="text-sm space-y-2 mb-4 bg-base-200 p-3 rounded-lg">
+                <p class="flex justify-between">
+                  <span class="opacity-70">Huésped:</span>
+                  <span class="font-bold">{{ reservaActiva()?.nombreHuesped || 'N/A' }}</span>
+                </p>
+                <p class="flex justify-between">
+                  <span class="opacity-70">Entrada:</span>
+                  <span>{{ reservaActiva()?.fechaEntrada | date:'dd/MM/yyyy' }}</span>
+                </p>
+                <p class="flex justify-between">
+                  <span class="opacity-70">Salida:</span>
+                  <span>{{ reservaActiva()?.fechaSalida | date:'dd/MM/yyyy' }}</span>
+                </p>
+              </div>
+              
+              <div class="flex flex-col gap-2">
+                
+                @if (reservaActiva()?.estado === 'pendiente') {
+                  <button class="btn btn-primary w-full shadow-md hover:scale-[1.02] transition-transform" 
+                          (click)="confirmarReserva()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Confirmar Entrada (Check-in)
+                  </button>
+                }
+
+                <button class="btn btn-outline btn-error w-full hover:scale-[1.02] transition-transform" 
+                        (click)="cancelarReserva()">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Cancelar Reserva
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
         <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
           <div class="card-body">
             <h3 class="card-title text-lg flex items-center gap-2">

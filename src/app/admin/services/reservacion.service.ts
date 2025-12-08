@@ -10,27 +10,27 @@ export class ReservacionService {
   private apiUrl = environment.apiUrl;
 
   createReservation(data: ReservaCreateDto): Observable<ReservaResponseDto> {
-    console.log('🔵 ReservacionService - Enviando POST a:', `${this.apiUrl}/reservas`);
-    console.log('🔵 ReservacionService - Payload:', data);
     
-    return this.http.post<ReservaResponseDto>(`${this.apiUrl}/reservas`, data).pipe(
-      tap({
-        next: (response) => {
-          console.log('✅ ReservacionService - Reserva creada exitosamente:', response);
-          console.log('✅ ReservacionService - ID de reserva:', response.id);
-        },
-        error: (error) => {
-          console.error('❌ ReservacionService - Error al crear reserva:', error);
-          console.error('❌ ReservacionService - Status:', error.status);
-          console.error('❌ ReservacionService - Mensaje:', error.message);
-          console.error('❌ ReservacionService - Detalles:', error.error);
-        }
-      })
-    );
+    return this.http.post<ReservaResponseDto>(`${this.apiUrl}/reservas`, data); 
   }
 
   getReservations(): Observable<ReservaResponseDto[]> {
-    console.log('🔵 ReservacionService - GET reservas');
     return this.http.get<ReservaResponseDto[]>(`${this.apiUrl}/reservas`);
+  }
+
+  
+  confirmReservation(id: number): Observable<any> {
+    (`ReservacionService - Confirmando reserva ${id}`);
+    return this.http.patch(`${this.apiUrl}/reservas/${id}/confirmar`, {}).pipe(
+      tap(() => (`Reserva ${id} confirmada exitosamente`))
+    );
+  }
+
+   
+  cancelReservation(id: number): Observable<any> {
+    (`ReservacionService - Cancelando reserva ${id}`);
+    return this.http.patch(`${this.apiUrl}/reservas/${id}/cancelar`, {}).pipe(
+      tap(() => (`Reserva ${id} cancelada exitosamente`))
+    );
   }
 }

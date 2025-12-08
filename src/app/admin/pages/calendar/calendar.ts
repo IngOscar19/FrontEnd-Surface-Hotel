@@ -13,19 +13,17 @@ export class Calendar implements OnInit {
   
   private reservacionService = inject(ReservacionService);
   
-  // Estado del calendario
-  currentDate = signal(new Date()); // Fecha actual visible
-  reservas = signal<ReservaResponseDto[]>([]);
-  daysInMonth = signal<(Date | null)[]>([]); // null representa espacios vacíos
 
-  // Nombres de días y meses
+  currentDate = signal(new Date()); 
+  reservas = signal<ReservaResponseDto[]>([]);
+  daysInMonth = signal<(Date | null)[]>([]); 
   weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
-  // Computados para mostrar en el header
+
   currentMonthName = computed(() => this.monthNames[this.currentDate().getMonth()]);
   currentYear = computed(() => this.currentDate().getFullYear());
 
@@ -35,8 +33,6 @@ export class Calendar implements OnInit {
   }
 
   loadReservations() {
-    // Aquí deberías cargar tus reservas. 
-    // Idealmente filtrar por el mes actual en el backend si tienes muchas.
     this.reservacionService.getReservations().subscribe(data => {
       this.reservas.set(data);
     });
@@ -72,10 +68,10 @@ export class Calendar implements OnInit {
     newDate.setMonth(newDate.getMonth() + offset);
     this.currentDate.set(newDate);
     this.generateCalendar();
-    // Opcional: Recargar reservas si filtras por mes en backend
+    
   }
 
-  // Verificar si una fecha es "Hoy"
+
   isToday(date: Date | null): boolean {
     if (!date) return false;
     const today = new Date();
@@ -84,21 +80,22 @@ export class Calendar implements OnInit {
            date.getFullYear() === today.getFullYear();
   }
 
-  // Filtrar reservas para un día específico
+ 
   getReservationsForDate(date: Date | null): ReservaResponseDto[] {
     if (!date) return [];
     
-    // Normalizamos la fecha del calendario a 00:00:00 para comparar
+   
     const currentDayTime = date.getTime();
 
     return this.reservas().filter(reserva => {
-      // Convertir strings a fechas si vienen como string desde la API
+      
+      
       const start = new Date(reserva.fechaEntrada); 
       const end = new Date(reserva.fechaSalida);
       
-      // Ajustar horas para comparar solo fechas (ignorar hora exacta)
+      
       start.setHours(0,0,0,0);
-      end.setHours(23,59,59,999); // Final del día de salida
+      end.setHours(23,59,59,999); 
 
       return currentDayTime >= start.getTime() && currentDayTime <= end.getTime();
     });
