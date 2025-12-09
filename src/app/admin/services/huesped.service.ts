@@ -10,8 +10,8 @@ export class HuespedService {
   private apiUrl = environment.apiUrl;
 
   createHuesped(data: CreateHuespedDTO): Observable<Huesped> {
-    console.log('🔵 HuespedService - Enviando POST a:', `${this.apiUrl}/Huesped`);
-    console.log('🔵 HuespedService - Payload:', JSON.stringify(data, null, 2));
+    console.log('HuespedService - Enviando POST a:', `${this.apiUrl}/Huesped`);
+    console.log('HuespedService - Payload:', JSON.stringify(data, null, 2));
     
     return this.http.post<Huesped>(`${this.apiUrl}/Huesped`, data).pipe(
       tap({
@@ -39,7 +39,7 @@ export class HuespedService {
   }
 
   getHuespedes(): Observable<Huesped[]> {
-    console.log('🔵 HuespedService - GET huespedes');
+    console.log('HuespedService - GET huespedes');
     return this.http.get<Huesped[]>(`${this.apiUrl}/huespedes`);
   }
 }
